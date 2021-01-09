@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.0.0-beta.3" }
+String getVersionNum() { return "1.0.0-beta.4" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -87,7 +87,6 @@ def getDeviceNetworkId(data) {
 
 def createChildDevices() {
     def result = executeAction("/api/local/info/state")
-
 	if (result && result.data)
     {
         if (!getChildDevice(getDeviceNetworkId(result.data)))
@@ -98,16 +97,18 @@ def createChildDevices() {
 def cleanupChildDevices()
 {
     def result = executeAction("/api/local/info/state")
-	for (device in getChildDevices())
-	{
-        if (getDeviceNetworkId(result.data) != device.deviceNetworkId)
-            deleteChildDevice(device.deviceNetworkId)
+    if (result && result.data)
+    {
+		for (device in getChildDevices())
+		{
+			if (getDeviceNetworkId(result.data) != device.deviceNetworkId)
+            		deleteChildDevice(device.deviceNetworkId)
+		}
 	}
 }
 
 def updateDevices() {
     def result = executeAction("/api/local/info/state")
-    
     if (result && result.data)
     {
         def device = getChildDevice(getDeviceNetworkId(result.data))
@@ -145,35 +146,35 @@ def updateDevices() {
 def handleStart(device, id) 
 {
     def result = executeAction("/api/local/action/start")
-    if (result.data.success == "null")
+    if (result && result.data && result.data.success == "null")
         device.sendEvent(name: "cleanStatus", value: "cleaning")
 }
 
 def handleStop(device, id) 
 {
     def result = executeAction("/api/local/action/stop")
-    if (result.data.success == "null")
+    if (result && result.data && result.data.success == "null")
         device.sendEvent(name: "cleanStatus", value: "idle")
 }
 
 def handlePause(device, id) 
 {
     def result = executeAction("/api/local/action/pause")
-    if (result.data.success == "null")
+    if (result && result.data && result.data.success == "null")
         device.sendEvent(name: "cleanStatus", value: "idle")
 }
 
 def handleResume(device, id) 
 {
     def result = executeAction("/api/local/action/resume")
-    if (result.data.success == "null")
+    if (result && result.data && result.data.success == "null")
         device.sendEvent(name: "cleanStatus", value: "cleaning")
 }
 
 def handleDock(device, id) 
 {
     def result = executeAction("/api/local/action/dock")
-	if (result.data.success == "null")
+	if (result && result.data && result.data.success == "null")
         device.sendEvent(name: "cleanStatus", value: "homing")
 }
 
