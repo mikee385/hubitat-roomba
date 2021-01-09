@@ -2,18 +2,32 @@
  *  Roomba Integration
  *
  *  Copyright 2019 Dominick Meglio
+ *  Modified by Michael Pierce
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License. You may obtain a copy of the License at:
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+ *  for the specific language governing permissions and limitations under the License.
  *
  */
+ 
+String getVersionNum() { return "1.0.0-beta.1" }
+String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
     name: "Roomba Integration",
-    namespace: "dcm.roomba",
-    author: "Dominick Meglio",
+    namespace: "mikee385", 
+	author: "Dominick Meglio and Michael Pierce", 
     description: "Connects to Roomba via Dorita",
     category: "My Apps",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
+    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png"
+    importUrl: "https://raw.githubusercontent.com/mikee385/hubitat-roomba/master/apps/Roomba_Integration.groovy")
 
 preferences {
 	page(name: "prefDorita", title: "Dorita Interface")
@@ -24,8 +38,11 @@ def prefDorita() {
 		section("Dorita Information"){
 			input("doritaIP", "text", title: "Dorita IP Address", description: "Dorita IP Address", required: true)
 			input("doritaPort", "number", title: "Dorita Port", description: "Dorita Port", required: true, defaultValue: 3000, range: "1..65535")
-            input("debugOutput", "bool", title: "Enable debug logging?", defaultValue: true, displayDuringSetup: false, required: false)
 		}
+		section {
+            input name: "logEnable", type: "bool", title: "Enable debug logging?", defaultValue: false
+            label title: "Assign a name", required: true
+        }
 	}
 }
 
@@ -56,6 +73,12 @@ def initialize() {
 	cleanupChildDevices()
 	createChildDevices()
     schedule("0/30 * * * * ? *", updateDevices)
+}
+
+def logDebug(msg) {
+    if (logEnable) {
+        log.debug msg
+    }
 }
 
 def createChildDevices() {
@@ -171,10 +194,4 @@ def executeAction(path) {
 		log.debug "HTTP Exception Received: $e"
 	}
 	return result
-}
-
-def logDebug(msg) {
-    if (settings?.debugOutput) {
-		log.debug msg
-	}
 }
