@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.0.0-beta.1" }
+String getVersionNum() { return "1.0.0-beta.2" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -35,7 +35,7 @@ preferences {
 
 def prefDorita() {
 	return dynamicPage(name: "prefDorita", title: "Connect to Dorita/Rest980", uninstall:true, install: true) {
-		section("Dorita Information"){
+		section("Dorita Information") {
 			input("doritaIP", "text", title: "Dorita IP Address", description: "Dorita IP Address", required: true)
 			input("doritaPort", "number", title: "Dorita Port", description: "Dorita Port", required: true, defaultValue: 3000, range: "1..65535")
 		}
@@ -47,19 +47,19 @@ def prefDorita() {
 }
 
 def installed() {
-	logDebug "Installed with settings: ${settings}"
+	logDebug("Installed with settings: ${settings}")
 
 	initialize()
 }
 
 def updated() {
-	logDebug "Updated with settings: ${settings}"
+	logDebug("Updated with settings: ${settings}")
     unschedule()
 	initialize()
 }
 
 def uninstalled() {
-	logDebug "Uninstalled app"
+	logDebug("Uninstalled app")
 
 	for (device in getChildDevices())
 	{
@@ -68,7 +68,7 @@ def uninstalled() {
 }
 
 def initialize() {
-	logDebug "initializing"
+	logDebug("initializing")
 
 	cleanupChildDevices()
 	createChildDevices()
@@ -182,7 +182,7 @@ def executeAction(path) {
 		contentType: "application/json"
 	]
 	def result = null
-	logDebug "calling action ${path}"
+	logDebug("calling action ${path}")
 	try
 	{
 		httpGet(params) { resp ->
@@ -191,7 +191,7 @@ def executeAction(path) {
 	}
 	catch (e) 
 	{
-		log.debug "HTTP Exception Received: $e"
+		log.error("HTTP Exception Received: $e")
 	}
 	return result
 }
