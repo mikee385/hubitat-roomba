@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.0.0-beta.5" }
+String getVersionNum() { return "1.0.0-beta.6" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -90,7 +90,7 @@ def createChildDevices() {
 	if (result && result.data)
     {
         if (!getChildDevice(getDeviceNetworkId(result.data)))
-            addChildDevice("roomba", "Roomba", getDeviceNetworkId(result.data), 1234, ["name": result.data.name, isComponent: false])
+            addChildDevice("mikee385", "Roomba", getDeviceNetworkId(result.data), 1234, ["name": result.data.name, isComponent: false])
     }
 }
 
