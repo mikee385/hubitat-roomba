@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.0.0-beta.2" }
+String getVersionNum() { return "1.0.0-beta.3" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -81,13 +81,17 @@ def logDebug(msg) {
     }
 }
 
+def getDeviceNetworkId(data) {
+	return "roomba:" + data.mac.replace(":", "")
+}
+
 def createChildDevices() {
     def result = executeAction("/api/local/info/state")
 
 	if (result && result.data)
     {
-        if (!getChildDevice("roomba:"+result.data.hwPartsRev.navSerialNo))
-            addChildDevice("roomba", "Roomba", "roomba:" + result.data.hwPartsRev.navSerialNo, 1234, ["name": result.data.name, isComponent: false])
+        if (!getChildDevice(getDeviceNetworkId(result.data)))
+            addChildDevice("roomba", "Roomba", getDeviceNetworkId(result.data), 1234, ["name": result.data.name, isComponent: false])
     }
 }
 
@@ -96,9 +100,7 @@ def cleanupChildDevices()
     def result = executeAction("/api/local/info/state")
 	for (device in getChildDevices())
 	{
-		def deviceId = device.deviceNetworkId.replace("roomba:","")
-		
-        if (result.data.hwPartsRev.navSerialNo != deviceId)
+        if (getDeviceNetworkId(result.data) != device.deviceNetworkId)
             deleteChildDevice(device.deviceNetworkId)
 	}
 }
@@ -108,7 +110,7 @@ def updateDevices() {
     
     if (result && result.data)
     {
-        def device = getChildDevice("roomba:" + result.data.hwPartsRev.navSerialNo)
+        def device = getChildDevice(getDeviceNetworkId(result.data))
         
         device.sendEvent(name: "battery", value: result.data.batPct)
         if (!result.data.bin.present)
