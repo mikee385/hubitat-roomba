@@ -8,7 +8,7 @@
             "id": "2925bd4b-2cae-4a20-91ce-cf7f2bd9db52",
             "name": "Roomba Integration",
             "namespace": "mikee385",
-            "version": "1.0.0-beta.6",
+            "version": "1.0.0-beta.7",
             "location": "https://raw.githubusercontent.com/mikee385/hubitat-roomba/master/apps/Roomba_Integration.groovy",
             "required": true
         }
