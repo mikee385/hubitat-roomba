@@ -1,16 +1,20 @@
 {
     "packageName": "Roomba Integration",
     "author": "Dominick Meglio and Michael Pierce",
-    "minimumHEVersion": "0.0",
+    "version": "1.0.0-beta.7",
+    "minimumHEVersion": "1.0.0",
+    "licenseFile": "https://raw.githubusercontent.com/mikee385/hubitat-mikee385/master/LICENSE",
+    "releaseNotes": "Add missing quotation marks",
     "dateReleased": "2021-01-09",
     "apps": [
         {
             "id": "2925bd4b-2cae-4a20-91ce-cf7f2bd9db52",
             "name": "Roomba Integration",
             "namespace": "mikee385",
-            "version": "1.0.0-beta.7",
             "location": "https://raw.githubusercontent.com/mikee385/hubitat-roomba/master/apps/Roomba_Integration.groovy",
-            "required": true
+            "required": true,
+            "oauth": false,
+            "primary": true
         }
     ],
     "drivers": [
@@ -18,7 +22,6 @@
             "id": "140b3581-a45d-44ef-85e9-ea7c5ee75e72",
             "name": "Roomba",
             "namespace": "mikee385",
-            "version": "1.0.0-beta.1",
             "location": "https://raw.githubusercontent.com/mikee385/hubitat-roomba/master/drivers/Roomba.groovy",
             "required": true
         }
