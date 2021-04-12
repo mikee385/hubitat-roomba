@@ -40,6 +40,11 @@ def prefDorita() {
 			input("doritaPort", "number", title: "Dorita Port", description: "Dorita Port", required: true, defaultValue: 3000, range: "1..65535")
 		}
 		section {
+            input name: "alertOffline", type: "bool", title: "Alert when offline?", defaultValue: false
+            input "offlineDuration", "number", title: "Minimum time before offline (in minutes)", required: true, defaultValue: 60
+        }
+        section {
+            input "notifier", "capability.notification", title: "Notification Device", multiple: false, required: true
             input name: "logEnable", type: "bool", title: "Enable debug logging?", defaultValue: false
             label title: "Assign a name", required: true
         }
@@ -73,6 +78,8 @@ def initialize() {
 	cleanupChildDevices()
 	createChildDevices()
     schedule("0/30 * * * * ? *", updateDevices)
+    
+    heartbeat()
 }
 
 def logDebug(msg) {
@@ -140,6 +147,10 @@ def updateDevices() {
 				break		
 		}
         device.sendEvent(name: "cleanStatus", value: status)
+        
+        heartbeat()
+    } else {
+    		state.healthStatus = "unhealthy"
     }
 }
 
@@ -197,4 +208,17 @@ def executeAction(path) {
 		log.error("HTTP Exception Received: $e")
 	}
 	return result
+}
+
+def heartbeat() {
+    unschedule("healthCheck")
+    state.healthStatus = "online"
+    runIn(60*offlineDuration, healthCheck)
+}
+
+def healthCheck() {
+    state.healthStatus = "offline"
+    if (alertOffline) {
+    		notifier.deviceNotification("${getLabel()} is offline!")
+    	}
 }
