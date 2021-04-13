@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.0.0" }
+String getVersionNum() { return "1.1.1" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -219,6 +219,6 @@ def heartbeat() {
 def healthCheck() {
     state.healthStatus = "offline"
     if (alertOffline) {
-    		notifier.deviceNotification("${getLabel()} is offline!")
+    		notifier.deviceNotification("${app.getLabel()} is offline!")
     	}
 }
