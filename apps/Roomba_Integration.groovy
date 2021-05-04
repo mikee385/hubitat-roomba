@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.1.1" }
+String getVersionNum() { return "1.2.0" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -147,6 +147,13 @@ def updateDevices() {
 				break		
 		}
         device.sendEvent(name: "cleanStatus", value: status)
+        
+        device.sendEvent(name: "phase", value: result.data.cleanMissionStatus.phase)
+        device.sendEvent(name: "cycle", value: result.data.cleanMissionStatus.cycle)
+        
+        device.sendEvent(name: "mssnStrtTm", value: result.data.cleanMissionStatus.mssnStrtTm)
+        device.sendEvent(name: "expireTm", value: result.data.cleanMissionStatus.expireTm)
+        device.sendEvent(name: "rechrgTm", value: result.data.cleanMissionStatus.rechrgTm)
         
         heartbeat()
     } else {

@@ -16,7 +16,7 @@
  */
  
 
-String getVersionNum() { return "1.0.0" }
+String getVersionNum() { return "1.1.0" }
 String getVersionLabel() { return "Roomba, version ${getVersionNum()} on ${getPlatform()}" }
 
 metadata {
@@ -31,6 +31,13 @@ metadata {
 		capability "Actuator"
         
         attribute "cleanStatus", "string"
+        
+        attribute "phase", "string"
+        attribute "cycle", "string"
+        
+        attribute "mssnStrtTm", "number"
+        attribute "expireTm", "number"
+        attribute "rechrgTm", "number"
         
         command "start"
         command "stop"
