@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.2.0" }
+String getVersionNum() { return "1.3.0" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -144,6 +144,9 @@ def updateDevices() {
 				break
 			case "stop":
 				status = "idle"
+				break
+			case "stuck":
+				status = "stuck"
 				break		
 		}
         device.sendEvent(name: "cleanStatus", value: status)
