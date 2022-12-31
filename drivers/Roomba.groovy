@@ -2,7 +2,7 @@
  *  Roomba Driver
  *
  *  Copyright 2019 Dominick Meglio
- *  Modified 2021 Michael Pierce
+ *  Modified 2021-2022 Michael Pierce
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -16,7 +16,7 @@
  */
  
 
-String getVersionNum() { return "1.1.0" }
+String getVersionNum() { return "2.0.0" }
 String getVersionLabel() { return "Roomba, version ${getVersionNum()} on ${getPlatform()}" }
 
 metadata {
@@ -29,6 +29,7 @@ metadata {
 		capability "Battery"
         capability "Consumable"
 		capability "Actuator"
+		capability "Initialize"
         
         attribute "cleanStatus", "string"
         
@@ -47,27 +48,72 @@ metadata {
     }
 }
 
-def start() 
-{
+def installed() {
+    initialize()
+}
+
+def uninstalled() {
+    for (device in getChildDevices()) {
+        deleteChildDevice(device.deviceNetworkId)
+    }
+}
+
+def updated() {
+    unschedule()
+    initialize()
+}
+
+def initialize() {
+    def startButton = childDevice("Start")
+    def stopButton = childDevice("Stop")
+    def pauseButton = childDevice("Pause")
+    def resumeButton = childDevice("Resume")
+    def dockButton = childDevice("Dock")
+}
+
+def childDevice(name) {
+    def childID = "roomba:${device.getId()}:$name"
+    def child = getChildDevice(childID)
+    if (!child) {
+        def childName = "${device.label ?: device.name}"
+        child = addChildDevice("mikee385", "Child Button", childID, [label: "$childName $name", isComponent: true])
+        child.setCommand(name)
+    }
+    return child
+}
+
+def start() {
     parent.handleStart(device, device.deviceNetworkId.split(":")[1])
 }
 
-def stop() 
-{
+def stop() {
     parent.handleStop(device, device.deviceNetworkId.split(":")[1])
 }
 
-def pause() 
-{
+def pause() {
     parent.handlePause(device, device.deviceNetworkId.split(":")[1])
 }
 
-def resume() 
-{
+def resume() {
     parent.handleResume(device, device.deviceNetworkId.split(":")[1])
 }
 
-def dock() 
-{
+def dock() {
     parent.handleDock(device, device.deviceNetworkId.split(":")[1])
+}
+
+def runCommand(name) {
+    if (name == "Start") {
+        start()
+    } else if (name == "Stop") {
+        stop()
+    } else if (name == "Pause") {
+        pause()
+    } else if (name == "Resume") {
+        resume()
+    } else if (name == "Dock") {
+        dock()
+    } else {
+        log.error "Unknown command name: $name"
+    }
 }
