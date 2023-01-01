@@ -16,7 +16,7 @@
  */
  
 
-String getVersionNum() { return "2.0.0" }
+String getVersionNum() { return "2.1.0" }
 String getVersionLabel() { return "Roomba, version ${getVersionNum()} on ${getPlatform()}" }
 
 metadata {
@@ -26,10 +26,11 @@ metadata {
 		author: "Dominick Meglio and Michael Pierce", 
 		importUrl: "https://raw.githubusercontent.com/mikee385/hubitat-roomba/master/drivers/Roomba.groovy"
 	) {
+	    capability "Actuator"
 		capability "Battery"
         capability "Consumable"
-		capability "Actuator"
-		capability "Initialize"
+        capability "Initialize"
+		capability "Switch"
         
         attribute "cleanStatus", "string"
         
@@ -116,4 +117,12 @@ def runCommand(name) {
     } else {
         log.error "Unknown command name: $name"
     }
+}
+
+def on() {
+    start()
+}
+
+def off() {
+    stop()
 }
