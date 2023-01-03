@@ -16,7 +16,7 @@
  */
  
 
-String getVersionNum() { return "2.1.0" }
+String getVersionNum() { return "3.0.0" }
 String getVersionLabel() { return "Roomba, version ${getVersionNum()} on ${getPlatform()}" }
 
 metadata {
@@ -29,7 +29,6 @@ metadata {
 	    capability "Actuator"
 		capability "Battery"
         capability "Consumable"
-        capability "Initialize"
 		capability "Switch"
         
         attribute "cleanStatus", "string"
@@ -77,10 +76,42 @@ def childDevice(name) {
     def child = getChildDevice(childID)
     if (!child) {
         def childName = "${device.label ?: device.name}"
-        child = addChildDevice("mikee385", "Child Button", childID, [label: "$childName $name", isComponent: true])
-        child.setCommand(name)
+        child = addChildDevice("hubitat", "Generic Component Switch", childID, [label: "$childName $name", isComponent: true])
+        child.updateSetting("logEnable", [value: "false", type: "bool"])
+        child.updateSetting("txtEnable", [value: "false", type: "bool"])
+        child.updateDataValue("Name", name)
+        child.sendEvent(name: "switch", value: "off")
     }
     return child
+}
+
+def componentRefresh(cd) {}
+
+def componentOn(cd) {
+    def child = getChildDevice(cd.deviceNetworkId)
+    child.sendEvent(name: "switch", value: "on")
+    
+    def name = child.getDataValue("Name")
+    if (name == "Start") {
+        start()
+    } else if (name == "Stop") {
+        stop()
+    } else if (name == "Pause") {
+        pause()
+    } else if (name == "Resume") {
+        resume()
+    } else if (name == "Dock") {
+        dock()
+    } else {
+        log.error "Unknown command name: $name"
+    }
+    
+    runIn(1, componentOff, [data: [deviceNetworkId: cd.deviceNetworkId]])
+}
+
+def componentOff(cd) {
+    def child = getChildDevice(cd.deviceNetworkId)
+    child.sendEvent(name: "switch", value: "off")
 }
 
 def start() {
@@ -101,22 +132,6 @@ def resume() {
 
 def dock() {
     parent.handleDock(device, device.deviceNetworkId.split(":")[1])
-}
-
-def runCommand(name) {
-    if (name == "Start") {
-        start()
-    } else if (name == "Stop") {
-        stop()
-    } else if (name == "Pause") {
-        pause()
-    } else if (name == "Resume") {
-        resume()
-    } else if (name == "Dock") {
-        dock()
-    } else {
-        log.error "Unknown command name: $name"
-    }
 }
 
 def on() {
