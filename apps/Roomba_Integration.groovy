@@ -66,8 +66,7 @@ def updated() {
 def uninstalled() {
 	logDebug("Uninstalled app")
 
-	for (device in getChildDevices())
-	{
+	for (device in getChildDevices()) {
 		deleteChildDevice(device.deviceNetworkId)
 	}	
 }
@@ -94,42 +93,40 @@ def getDeviceNetworkId(data) {
 
 def createChildDevices() {
     def result = executeAction("/api/local/info/state")
-	if (result && result.data)
-    {
-        if (!getChildDevice(getDeviceNetworkId(result.data)))
+	if (result && result.data) {
+        if (!getChildDevice(getDeviceNetworkId(result.data))) {
             addChildDevice("mikee385", "Roomba", getDeviceNetworkId(result.data), 1234, ["name": result.data.name, isComponent: false])
+		} 
     }
 }
 
 def cleanupChildDevices() {
     def result = executeAction("/api/local/info/state")
-    if (result && result.data)
-    {
-		for (device in getChildDevices())
-		{
-			if (getDeviceNetworkId(result.data) != device.deviceNetworkId)
-            		deleteChildDevice(device.deviceNetworkId)
+    if (result && result.data) {
+		for (device in getChildDevices()) {
+			if (getDeviceNetworkId(result.data) != device.deviceNetworkId) {
+            	deleteChildDevice(device.deviceNetworkId)
+			}	
 		}
 	}
 }
 
 def updateDevices() {
     def result = executeAction("/api/local/info/state")
-    if (result && result.data)
-    {
+    if (result && result.data) {
         def device = getChildDevice(getDeviceNetworkId(result.data))
         
         device.sendEvent(name: "battery", value: result.data.batPct)
-        if (!result.data.bin.present)
+        if (!result.data.bin.present) {
             device.sendEvent(name: "consumableStatus", value: "missing")
-        else if (result.data.bin.full)
+        } else if (result.data.bin.full) {
             device.sendEvent(name: "consumableStatus", value: "maintenance_required")
-        else
+        } else {
             device.sendEvent(name: "consumableStatus", value: "good")
+		} 
         
 		def status = ""
-		switch (result.data.cleanMissionStatus.phase)
-		{
+		switch (result.data.cleanMissionStatus.phase) {
 			case "hmMidMsn":
 			case "hmPostMsn":
 			case "hmUsrDock":
@@ -169,7 +166,7 @@ def updateDevices() {
         
         heartbeat()
     } else {
-    		state.healthStatus = "unhealthy"
+    	state.healthStatus = "unhealthy"
     }
 }
 
@@ -221,14 +218,12 @@ def executeAction(path) {
 	]
 	def result = null
 	logDebug("calling action ${path}")
-	try
-	{
+	try {
 		httpGet(params) { resp ->
 			result = resp
 		}
 	}
-	catch (e) 
-	{
+	catch (e) {
 		log.error("HTTP Exception Received: $e")
 	}
 	return result
@@ -243,6 +238,6 @@ def heartbeat() {
 def healthCheck() {
     state.healthStatus = "offline"
     if (alertOffline) {
-    		notifier.deviceNotification("${app.getLabel()} is offline!")
-    	}
+    	notifier.deviceNotification("${app.getLabel()} is offline!")
+    }
 }
