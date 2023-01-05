@@ -16,7 +16,7 @@
  */
  
 
-String getVersionNum() { return "3.0.0" }
+String getVersionNum() { return "4.0.0" }
 String getVersionLabel() { return "Roomba, version ${getVersionNum()} on ${getPlatform()}" }
 
 metadata {
@@ -29,7 +29,7 @@ metadata {
 	    capability "Actuator"
 		capability "Battery"
         capability "Consumable"
-		capability "Switch"
+        capability "Sensor"
         
         attribute "cleanStatus", "string"
         
@@ -64,11 +64,8 @@ def updated() {
 }
 
 def initialize() {
-    def startButton = childDevice("Start")
-    def stopButton = childDevice("Stop")
-    def pauseButton = childDevice("Pause")
-    def resumeButton = childDevice("Resume")
-    def dockButton = childDevice("Dock")
+    def cleaningSwitch = childDevice("Cleaning")
+    def pauseSwitch = childDevice("Pause")
 }
 
 def childDevice(name) {
@@ -89,29 +86,26 @@ def componentRefresh(cd) {}
 
 def componentOn(cd) {
     def child = getChildDevice(cd.deviceNetworkId)
-    child.sendEvent(name: "switch", value: "on")
-    
     def name = child.getDataValue("Name")
-    if (name == "Start") {
+    if (name == "Cleaning") {
         start()
-    } else if (name == "Stop") {
-        stop()
     } else if (name == "Pause") {
         pause()
-    } else if (name == "Resume") {
-        resume()
-    } else if (name == "Dock") {
-        dock()
     } else {
-        log.error "Unknown command name: $name"
+        log.error "Unknown child switch: $name"
     }
-    
-    runIn(1, componentOff, [data: [deviceNetworkId: cd.deviceNetworkId]])
 }
 
 def componentOff(cd) {
     def child = getChildDevice(cd.deviceNetworkId)
-    child.sendEvent(name: "switch", value: "off")
+    def name = child.getDataValue("Name")
+    if (name == "Cleaning") {
+        stop()
+    } else if (name == "Pause") {
+        resume()
+    } else {
+        log.error "Unknown child switch: $name"
+    }
 }
 
 def start() {
@@ -134,10 +128,17 @@ def dock() {
     parent.handleDock(device, device.deviceNetworkId.split(":")[1])
 }
 
-def on() {
-    start()
+def setCleaningOn() {
+    childDevice("Cleaning").sendEvent(name: "switch", value: "on")
+    childDevice("Pause").sendEvent(name: "switch", value: "off")
 }
 
-def off() {
-    stop()
+def setCleaningPaused() {
+    childDevice("Cleaning").sendEvent(name: "switch", value: "on")
+    childDevice("Pause").sendEvent(name: "switch", value: "on")
+}
+
+def setCleaningOff() {
+    childDevice("Cleaning").sendEvent(name: "switch", value: "off")
+    childDevice("Pause").sendEvent(name: "switch", value: "off")
 }

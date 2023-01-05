@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "1.4.0" }
+String getVersionNum() { return "2.0.0" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -152,12 +152,14 @@ def updateDevices() {
         
         if (result.data.cleanMissionStatus.cycle) {
             if (result.data.cleanMissionStatus.cycle == "none") {
-            	device.sendEvent(name: "switch", value: "off")
+            	device.setCleaningOff()
+        	} else if (result.data.cleanMissionStatus.phase == "stop") {
+        		device.setCleaningPaused()
         	} else {
-            	device.sendEvent(name: "switch", value: "on")
+            	device.setCleaningOn()
         	}
 		} else {
-			device.sendEvent(name: "switch", value: "off")
+			device.setCleaningOff()
         }
         
         device.sendEvent(name: "mssnStrtTm", value: result.data.cleanMissionStatus.mssnStrtTm)
@@ -174,7 +176,7 @@ def handleStart(device, id) {
     def result = executeAction("/api/local/action/start")
     if (result && result.data && result.data.success == "null") {
         device.sendEvent(name: "cleanStatus", value: "cleaning")
-        device.sendEvent(name: "switch", value: "on")
+        device.setCleaningOn()
 	} 
 }
 
@@ -182,7 +184,7 @@ def handleStop(device, id) {
     def result = executeAction("/api/local/action/stop")
     if (result && result.data && result.data.success == "null") {
         device.sendEvent(name: "cleanStatus", value: "idle")
-        device.sendEvent(name: "switch", value: "off")
+        device.setCleaningOff()
     } 
 }
 
@@ -190,7 +192,7 @@ def handlePause(device, id) {
     def result = executeAction("/api/local/action/pause")
     if (result && result.data && result.data.success == "null") {
         device.sendEvent(name: "cleanStatus", value: "idle")
-        device.sendEvent(name: "switch", value: "on")
+        device.setCleaningPaused()
 	} 
 }
 
@@ -198,7 +200,7 @@ def handleResume(device, id) {
     def result = executeAction("/api/local/action/resume")
     if (result && result.data && result.data.success == "null") {
         device.sendEvent(name: "cleanStatus", value: "cleaning")
-        device.sendEvent(name: "switch", value: "on")
+        device.setCleaningOn()
 	} 
 }
 
@@ -206,7 +208,7 @@ def handleDock(device, id) {
     def result = executeAction("/api/local/action/dock")
 	if (result && result.data && result.data.success == "null") {
         device.sendEvent(name: "cleanStatus", value: "homing")
-        device.sendEvent(name: "switch", value: "on")
+        device.setCleaningOn()
 	} 
 }
 
