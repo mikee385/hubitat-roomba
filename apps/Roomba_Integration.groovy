@@ -2,7 +2,7 @@
  *  Roomba Integration
  *
  *  Copyright 2019 Dominick Meglio
- *  Modified 2021 Michael Pierce
+ *  Modified 2021-2023 Michael Pierce
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -15,7 +15,7 @@
  *
  */
  
-String getVersionNum() { return "2.0.0" }
+String getVersionNum() { return "2.1.0" }
 String getVersionLabel() { return "Roomba Integration, version ${getVersionNum()} on ${getPlatform()}" }
 
 definition(
@@ -153,7 +153,7 @@ def updateDevices() {
         if (result.data.cleanMissionStatus.cycle) {
             if (result.data.cleanMissionStatus.cycle == "none") {
             	device.setCleaningOff()
-        	} else if (result.data.cleanMissionStatus.phase == "stop") {
+        	} else if (result.data.cleanMissionStatus.phase == "stop" || result.data.cleanMissionStatus.phase == "stuck") {
         		device.setCleaningPaused()
         	} else {
             	device.setCleaningOn()
